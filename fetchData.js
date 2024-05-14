@@ -12,7 +12,6 @@ async function loadData(){
     
 
     var start = new Date().getTime();
-    var ramuse = process.memoryUsage().heapUsed / 1024 / 1024;
 
     for(var i = 0; i < 5; i++){
     await page.goto(page_url, { timeout: 60000 });
