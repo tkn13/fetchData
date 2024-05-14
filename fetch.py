@@ -15,7 +15,7 @@ def main():
     
     with sync_playwright() as p:
         
-        browser = p.chromium.launch(headless=False)
+        browser = p.chromium.launch(headless=True)
         print('Browser launched')
         page = browser.new_page()
 
@@ -27,10 +27,15 @@ def main():
             data_dict["date"] = chekin_date + ' - ' + chekout_date
             print(f'Loading page for {chekin_date} - {chekout_date}')
             page.goto(page_url, timeout=60000)
+
+            page.wait_for_load_state('load')
             print('Page loaded')
 
+            page.wait_for_selector('div.roomArea form#hprt-form div.hprt-container div.hprt-table-column table#hprt-table tbody tr')
+            print('Data loaded')
             td_elements = page.query_selector_all('div.roomArea form#hprt-form div.hprt-container div.hprt-table-column table#hprt-table tbody tr')
-
+            
+            print(len(td_elements))
             print(f'Checking for {chekin_date} - {chekout_date}')
 
             if len(td_elements) == 0:
