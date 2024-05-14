@@ -197,7 +197,11 @@ function nextDay(date){
     return date_and_time.format(temp, 'YYYY-MM-DD');
 }
 
-loadData();
+
+var startTimeano = new Date();
+await loadData();
+var endTimeano = new Date();
+console.log("Time: " + (endTimeano - startTimeano) + "ms");
 
 
 
