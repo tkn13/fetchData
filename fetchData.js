@@ -5,7 +5,7 @@ const { get } = require('http');
 
 var checkinDate = new Date();
 
-var path1 = "h1.txt";
+var path = "h";
 var path2 = "h2.txt";
 var path3 = "h3.txt";
 var path4 = "h4.txt";
@@ -187,6 +187,58 @@ async function loadData(){
     await browser.close();
 }
 
+async function loadDataloop(bot){
+    const browser = await chromium.launch({ headless: false });
+    const context = await browser.newContext();
+    var startday = [];
+    const promisses = [];
+    totalday = 10;
+    // var bot = 5;
+    console.log("Bot: " + bot);
+    for(var i = 0; i < bot; i++){
+        startday[i] = "2024-05-15"
+        console.log("Startday: " + startday[i]);
+    }
+    
+
+
+    for(var b = 0; b < bot; b++){
+    console.log("Bot: " + b);
+    promisses.push(
+        context.newPage().then(async (page) => {
+            for(var i = 0; i < urls.length; i++){
+                var checkin = "2024-05-15"
+                var checkout = nextDay(checkin);
+                var url = `https://www.booking.com/hotel/th/m-casa-pattaya.html?aid=304142&label=gen173nr-1FCAEoggI46AdIM1gEaN0BiAEBmAExuAEXyAEM2AEB6AEB-AECiAIBqAIDuAKvpo6yBsACAdICJGMzYTBiYTRiLTA0ZGUtNDFmNy1hNWZjLWZjZTI3YjhmYzIwMtgCBeACAQ&sid=11deb8d05e8ce4658d168dbeeeee732a&all_sr_blocks=925119301_364313333_2_9_0;checkin=${checkin};checkout=${checkout};dest_id=9251193;dest_type=hotel;dist=0;group_adults=2;group_children=0;hapos=1;highlighted_blocks=925119301_364313333_2_9_0;hpos=1;matching_block_id=925119301_364313333_2_9_0;no_rooms=1;req_adults=2;req_children=0;room1=A%2CA;sb_price_type=total;sr_order=popularity;sr_pri_blocks=925119301_364313333_2_9_0__186300;srepoch=1715704975;srpvid=153a7585195f0334;type=total;ucfs=1&selected_currency=THB#hotelTmpl`
+                for(var j = 0; j < totalday; j++){
+                    await page.goto(url, { timeout: 60000 });
+                    const td_elements = await page.$$('div.roomArea form#hprt-form div.hprt-container div.hprt-table-column table#hprt-table tbody tr');
+                    const tr = td_elements[0];
+                    const td = await tr.$('td:nth-child(3)');
+                    const spanPrice = await td.$('span.bui-u-sr-only');
+                    const data = await spanPrice.innerText();
+
+                    //wirete to file
+                    fs.appendFile(path + b + ".txt", data + '\n', function (err) {
+                        if (err) throw err;
+                        console.log('01Saved!');
+                    });
+
+                    checkin = checkout;
+                    checkout = nextDay(checkin);
+                    url = `https://www.booking.com/hotel/th/m-casa-pattaya.html?aid=304142&label=gen173nr-1FCAEoggI46AdIM1gEaN0BiAEBmAExuAEXyAEM2AEB6AEB-AECiAIBqAIDuAKvpo6yBsACAdICJGMzYTBiYTRiLTA0ZGUtNDFmNy1hNWZjLWZjZTI3YjhmYzIwMtgCBeACAQ&sid=11deb8d05e8ce4658d168dbeeeee732a&all_sr_blocks=925119301_364313333_2_9_0;checkin=${checkin};checkout=${checkout};dest_id=9251193;dest_type=hotel;dist=0;group_adults=2;group_children=0;hapos=1;highlighted_blocks=925119301_364313333_2_9_0;hpos=1;matching_block_id=925119301_364313333_2_9_0;no_rooms=1;req_adults=2;req_children=0;room1=A%2CA;sb_price_type=total;sr_order=popularity;sr_pri_blocks=925119301_364313333_2_9_0__186300;srepoch=1715704975;srpvid=153a7585195f0334;type=total;ucfs=1&selected_currency=THB#hotelTmpl`
+                    
+                    //url = url.replace(tempCheckin, checkin).replace(tempCheckout, checkout);
+                }
+            }
+            page.close();
+        })
+    );}
+    await Promise.all(promisses);
+    await browser.close();
+
+}
+
 function getBookingFormat(date){
     return date_and_time.format(date, 'YYYY-MM-DD');
 }
@@ -198,11 +250,8 @@ function nextDay(date){
 }
 
 
-var startTimeano = new Date();
-await loadData();
-var endTimeano = new Date();
-console.log("Time: " + (endTimeano - startTimeano) + "ms");
-
+loadDataloop(5);
+//loadData();
 
 
 /*
